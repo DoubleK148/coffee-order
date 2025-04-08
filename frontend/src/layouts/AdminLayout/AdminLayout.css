@@ -1,0 +1,23 @@
+.admin-layout {
+  display: flex;
+}
+
+.admin-content {
+  flex-grow: 1;
+  padding: 24px;
+}
+
+.admin-header {
+  background-color: #582F0E !important;
+}
+
+.logout-button {
+  margin-left: 16px !important;
+  border-radius: 8px !important;
+  padding: 6px 16px !important;
+  transition: all 0.3s ease !important;
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+} 

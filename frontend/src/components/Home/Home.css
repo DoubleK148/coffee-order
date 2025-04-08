@@ -1,0 +1,132 @@
+.home-container {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  background-color: #f7efe7; /* Màu nâu rất nhạt */
+  padding: 100px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-container {
+  width: 90%;
+  max-width: 1800px;
+  height: 85vh;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  padding: 20px;
+  position: relative;
+  z-index: 2; /* Đảm bảo carousel hiển thị trên overlay */
+}
+
+.carousel {
+  height: 100%;
+}
+
+.slide {
+  height: 85vh; /* Cập nhật chiều cao của slide */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Overlay tối để text dễ đọc */
+}
+
+.content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+  padding: 0 20px;
+  color: white;
+}
+
+.title {
+  font-size: 4rem !important;
+  margin-bottom: 1rem !important;
+  font-family: 'Playfair Display', serif !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.subtitle {
+  font-size: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.action-button {
+  padding: 12px 32px !important;
+  font-size: 1.1rem !important;
+  border-radius: 30px !important;
+  text-transform: none !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.view-menu {
+  background-color: #582F0E !important;
+  color: white !important;
+}
+
+.view-menu:hover {
+  background-color: white !important;
+  color: #582F0E !important;
+}
+
+.book-table {
+  border-color: white !important;
+  color: white !important;
+}
+
+.book-table:hover {
+  background-color: white !important;
+  color: #582F0E !important;
+}
+
+.carousel .MuiPagination-ul {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 10;
+}
+
+.carousel .MuiPagination-ul .MuiButtonBase-root {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  min-width: unset;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid transparent;
+}
+
+.carousel .MuiPagination-ul .Mui-selected {
+  background: white !important;
+  border: 2px solid #582F0E;
+}
+
+.carousel .MuiPagination-ul .MuiButtonBase-root span {
+  display: none;
+} 

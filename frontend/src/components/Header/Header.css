@@ -1,0 +1,132 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px; /* Chiều cao cố định của header */
+    background-color: #fff; /* hoặc màu nền mong muốn */
+    z-index: 1000; /* Đảm bảo header luôn hiển thị trên cùng */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tạo bóng nhẹ cho header */
+}
+
+/* Đảm bảo các phần tử trong header không bị overflow */
+.header-content {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 0;
+}
+
+.logo {
+    height: 80px;
+    margin-right: 8px;
+    object-fit: contain;
+}
+
+.brand-name {
+    text-decoration: none;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: 0.5px;
+}
+
+.menu-items {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.menu-button {
+    color: white;
+    text-transform: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.3px;
+    position: relative;
+    padding: 6px 12px;
+    transition: all 0.3s ease;
+}
+
+.menu-button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: white;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.menu-button:hover {
+    transform: translateY(-2px);
+}
+
+.menu-button:hover::after {
+    width: 80%;
+}
+
+.icon-container {
+    display: flex;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+.MuiMenu-paper {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    min-width: 200px !important;
+    margin-top: 8px !important;
+}
+
+.MuiMenuItem-root {
+    padding: 10px 20px !important;
+}
+
+.MuiListItemIcon-root {
+    min-width: 35px !important;
+}
+
+/* Thêm styles cho button login */
+.login-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.login-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.login-button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: white;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.login-button:hover::after {
+    width: 80%;
+}

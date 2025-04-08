@@ -1,0 +1,86 @@
+.about-container {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  background-color: #f2e8df; /* Màu nâu nhạt khác */
+  padding: 100px 0;
+}
+
+.about-content {
+  position: relative;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.about-carousel {
+  margin-top: 20px;
+}
+
+.about-text {
+  text-align: left;
+  color: #333;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.8;
+  height: 400px; /* Đặt chiều cao bằng với ảnh */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Căn giữa theo chiều dọc */
+  padding-left: 40px; /* Tăng padding để text không sát vào ảnh */
+}
+
+.about-subtitle {
+  font-family: 'Playfair Display', serif !important;
+  color: #582F0E;
+  margin-bottom: 20px !important;
+}
+
+.about-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.about-image {
+  width: 100%;
+  max-width: 500px;
+  height: 400px; /* Chiều cao cố định */
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+}
+
+.image-caption {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  max-width: 80%;
+}
+
+/* Responsive styling */
+@media (max-width: 960px) {
+  .about-text {
+    height: auto; /* Trên mobile không cần fixed height */
+    padding: 20px 0;
+    text-align: center;
+  }
+  
+  .about-image {
+    height: 300px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .about-content :global(.MuiIconButton-root.MuiIconButton-sizeMedium) {
+    margin: 0 -30px;  /* Giảm khoảng cách trên màn hình nhỏ hơn */
+  }
+}
+
+@media (max-width: 960px) {
+  .about-content :global(.MuiIconButton-root.MuiIconButton-sizeMedium) {
+    margin: 0 -20px;  /* Giảm khoảng cách hơn nữa trên mobile */
+  }
+}
