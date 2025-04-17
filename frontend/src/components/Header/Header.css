@@ -3,10 +3,23 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 80px; /* Chiều cao cố định của header */
-    background-color: #fff; /* hoặc màu nền mong muốn */
+    height: 100px; /* Tăng từ 80px lên 100px */
+    background-color: transparent;
     z-index: 1000; /* Đảm bảo header luôn hiển thị trên cùng */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tạo bóng nhẹ cho header */
+    display: none; /* Mặc định ẩn */
+}
+
+/* Hiển thị header chỉ ở trang chủ và profile */
+body[data-page="/"] .header,
+body[data-page="/profile"] .header {
+    display: block !important;
+}
+
+/* Ẩn header ở trang menu, admin và auth pages */
+body[data-page="/menu"] .header,
+body[data-page="admin"] .header,
+body[data-page="auth"] .header {
+    display: none !important;
 }
 
 /* Đảm bảo các phần tử trong header không bị overflow */
@@ -14,119 +27,140 @@
     height: 100%;
     display: flex;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 30px; /* Tăng từ 20px lên 30px */
 }
 
 .logo-container {
     display: flex;
     align-items: center;
-    flex-grow: 0;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
 .logo {
-    height: 80px;
-    margin-right: 8px;
+    height: 80px; /* Tăng từ 60px lên 80px */
+    margin-right: 16px; /* Tăng từ 12px lên 16px */
     object-fit: contain;
 }
 
 .brand-name {
-    text-decoration: none;
-    color: white;
-    font-size: 1.8rem;
+    color: #FDF8F5;
+    font-size: 2.5rem; /* Tăng từ 2rem lên 2.5rem */
     font-weight: bold;
-    font-family: 'Playfair Display', serif;
-    letter-spacing: 0.5px;
+    font-family: "Playfair Display", serif;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.menu-items {
+.menu-container {
     display: flex;
-    gap: 8px;
+    gap: 24px; /* Tăng từ 16px lên 24px */
     justify-content: center;
     flex-grow: 1;
 }
 
 .menu-button {
-    color: white;
-    text-transform: none;
-    font-size: 1.1rem;
-    font-weight: 500;
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.3px;
+    color: #FDF8F5 !important;
+    text-transform: none !important;
+    font-size: 1.4rem !important; /* Tăng từ 1.1rem lên 1.4rem */
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 24px !important; /* Tăng từ 8px 16px lên 12px 24px */
     position: relative;
-    padding: 6px 12px;
-    transition: all 0.3s ease;
 }
 
 .menu-button::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
+    width: 100%;
+    transform: scaleX(0);
     height: 2px;
-    background-color: white;
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.menu-button:hover {
-    transform: translateY(-2px);
+    bottom: 0;
+    left: 0;
+    background-color: #FDF8F5;
+    transform-origin: bottom right;
+    transition: transform 0.3s ease-out;
 }
 
 .menu-button:hover::after {
-    width: 80%;
+    transform: scaleX(1);
+    transform-origin: bottom left;
 }
 
-.icon-container {
+.actions-container {
     display: flex;
-    gap: 8px;
-    margin-left: 16px;
+    align-items: center;
+    gap: 24px; /* Tăng từ 16px lên 24px */
 }
 
-.MuiMenu-paper {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    min-width: 200px !important;
-    margin-top: 8px !important;
+.cart-button,
+.profile-button {
+    color: #FDF8F5 !important;
+    transition: transform 0.3s ease !important;
+    padding: 12px !important; /* Thêm padding */
 }
 
-.MuiMenuItem-root {
-    padding: 10px 20px !important;
+.cart-button svg,
+.profile-button svg {
+    font-size: 2rem !important; /* Tăng kích thước icon */
 }
 
-.MuiListItemIcon-root {
-    min-width: 35px !important;
+.cart-button:hover,
+.profile-button:hover {
+    transform: translateY(-2px);
 }
 
-/* Thêm styles cho button login */
 .login-button {
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    padding: 6px 16px;
-    border-radius: 4px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #cab09a 0%, #936639 100%) !important;
+    color: #FDF8F5 !important;
+    padding: 12px 32px !important; /* Tăng từ 8px 24px lên 12px 32px */
+    font-size: 1.3rem !important; /* Tăng từ 1rem lên 1.3rem */
+    font-weight: 600 !important;
+    text-transform: none !important;
+    border-radius: 12px !important; /* Tăng từ 8px lên 12px */
+    transition: all 0.3s ease !important;
+    min-height: 50px !important; /* Thêm chiều cao tối thiểu */
 }
 
 .login-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, #936639 0%, #582F0E 100%) !important;
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
-.login-button::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background-color: white;
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
+.dropdown-menu {
+    margin-top: 8px !important;
 }
 
-.login-button:hover::after {
-    width: 80%;
+.menu-item {
+    padding: 16px 32px !important; /* Tăng từ 12px 24px lên 16px 32px */
+    transition: all 0.3s ease !important;
+    font-size: 1.3rem !important; /* Thêm font size */
+}
+
+.menu-item:hover {
+    background-color: rgba(147, 102, 57, 0.1) !important;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .menu-container {
+        display: none;
+    }
+    
+    .brand-name {
+        font-size: 2rem; /* Tăng từ 1.5rem lên 2rem */
+    }
+    
+    .logo {
+        height: 60px; /* Tăng từ 50px lên 60px */
+    }
+}
+
+/* Glass effect cho header */
+.glass-effect {
+    background: rgba(202, 176, 154, 0.8) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
 }

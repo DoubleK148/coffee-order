@@ -1,0 +1,13 @@
+.table-management-page {
+  padding: 32px 0;
+}
+
+.table-management-page h1 {
+  margin-bottom: 24px;
+  color: #582F0E;
+  font-family: 'Playfair Display', serif;
+}
+
+.table-management-page .admin-card {
+  padding: 32px;
+} 

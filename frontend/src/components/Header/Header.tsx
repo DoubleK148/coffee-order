@@ -1,7 +1,7 @@
+import { useState } from 'react'
 import { 
   AppBar, 
   Toolbar, 
-  Container, 
   Box, 
   Button, 
   IconButton, 
@@ -10,97 +10,57 @@ import {
   ListItemIcon, 
   ListItemText, 
   Divider,
-  styled
+  Badge
 } from '@mui/material'
-import { Person, Logout, AccountCircle } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { Person, Logout, AccountCircle, ShoppingCart, TableBar } from '@mui/icons-material'
+import { useNavigate, useLocation } from 'react-router-dom'
 import logo from '../../assets/logo.png'
 import { logout } from '../../services/authService'
-import { useState, useEffect } from 'react'
-import Badge from '@mui/material/Badge'
 import { useCart } from '../../contexts/CartContext'
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-
-// Styled components
-const StyledAppBar = styled(AppBar)(() => ({
-  backgroundColor: '#cab09a',
-  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-  position: 'sticky',
-  top: 0,
-  zIndex: 1000
-}))
-
-const LogoContainer = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  flexGrow: 0,
-  cursor: 'pointer'
-})
-
-const Logo = styled('img')({
-  height: '60px',
-  marginRight: '12px',
-  objectFit: 'contain'
-})
-
-const BrandName = styled('span')({
-  textDecoration: 'none',
-  color: '#FDF8F5',
-  fontSize: '2rem',
-  fontWeight: 'bold',
-  fontFamily: '"Playfair Display", serif',
-  letterSpacing: '1px',
-  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)'
-})
-
-const MenuContainer = styled(Box)({
-  display: 'flex',
-  gap: '16px',
-  justifyContent: 'center',
-  flexGrow: 1
-})
-
-const MenuButton = styled(Button)<{ component?: React.ElementType }>(() => ({  
-  color: '#FDF8F5',
-  textTransform: 'none',
-  fontSize: '1.1rem',
-  fontWeight: 500,
-  letterSpacing: '0.5px',
-  padding: '8px 16px',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)'
-  }
-}))
-
-const LoginButton = styled(Button)(() => ({
-  backgroundColor: '#936639',
-  color: '#FDF8F5',
-  padding: '8px 24px',
-  fontSize: '1rem',
-  fontWeight: 600,
-  textTransform: 'none',
-  borderRadius: '8px',
-  '&:hover': {
-    backgroundColor: '#45a049'
-  }
-}))
+import { useTable } from '@/contexts/TableContext'
+import { useAuth } from '@/contexts/AuthContext'
+import ReturnTableDialog from '../ReturnTableDialog/ReturnTableDialog'
+import './Header.css'
 
 const Header = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const { state } = useCart()
-  const itemCount = state.items.reduce((sum, item) => sum + item.quantity, 0)
+  const { tables } = useTable()
+  const { user } = useAuth()
+  const token = localStorage.getItem('token')
+  const [showReturnTableDialog, setShowReturnTableDialog] = useState(false)
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    const user = localStorage.getItem('user')
-    setIsLoggedIn(!!token && !!user)
-  }, [])
+  // Kiểm tra xem user hiện tại có đang ngồi ở bàn nào không
+  const hasOccupiedTable = user && Array.isArray(tables) && tables.some(table => 
+    table.status === 'occupied' && 
+    table.customerInfo?.email === user.email
+  )
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleLogout = () => {
+    logout()
+    handleMenuClose()
+    navigate('/login')
+  }
+
+  const handleProfile = () => {
+    handleMenuClose()
+    navigate('/profile')
+  }
 
   const scrollToSection = (sectionId: string) => {
-    if (window.location.pathname !== '/') {
+    if (location.pathname !== '/') {
       navigate('/')
+      // Đợi một chút để trang chủ được load xong rồi mới scroll
       setTimeout(() => {
         const element = document.getElementById(sectionId)
         if (element) {
@@ -115,138 +75,124 @@ const Header = () => {
     }
   }
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    if (isLoggedIn) {
-      setAnchorEl(event.currentTarget)
-    }
-  }
-
-  const handleMenuClose = () => {
-    setAnchorEl(null)
-  }
-
-  const handleProfile = () => {
-    handleMenuClose()
-    navigate('/profile')
-  }
-
-  const handleLogout = () => {
-    logout()
-    handleMenuClose()
-    navigate('/login')
-  }
-
   return (
-    <StyledAppBar position="fixed">
-      <Container maxWidth="xl">
-        <Toolbar sx={{ height: '80px', minHeight: '80px !important' }}>
-          {/* Logo */}
-          <LogoContainer onClick={() => scrollToSection('home')}>
-            <Logo 
-              src={logo}
-              alt="E Coffee"
-            />
-            <BrandName>
+    <>
+      <AppBar position="fixed" className="glass-effect">
+        <Toolbar className="header-toolbar">
+          <Box className="logo-container" onClick={() => navigate('/')}>
+            <img src={logo} alt="Logo" className="logo" />
+            <span className="brand-name">
               E Coffee 
-            </BrandName>
-          </LogoContainer>
+            </span>
+          </Box>
 
-          {/* Menu Items */}
-          <MenuContainer>
-            <MenuButton onClick={() => scrollToSection('home')}>
-              Home
-            </MenuButton>
-            
-            <MenuButton onClick={() => scrollToSection('about')}>
-              About
-            </MenuButton>
-
-            <MenuButton onClick={() => scrollToSection('offers')}>
-              Offers
-            </MenuButton>
-
-            <MenuButton onClick={() => scrollToSection('blog')}>
-              Blog
-            </MenuButton>
-
-            <MenuButton onClick={() => scrollToSection('contact')}>
-              Contact
-            </MenuButton>
-
-            
-
-          </MenuContainer>
-
-          {/* Icons and Login */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton
-              sx={{ color: 'white' }}
-              onClick={() => navigate('/cart')}
-              aria-label="shopping cart"
+          <Box className="menu-container">
+            <Button 
+              className="menu-button hover-underline"
+              onClick={() => scrollToSection('home')}
             >
-              <Badge badgeContent={itemCount} color="error">
-                <ShoppingCartIcon />
+              Home
+            </Button>
+            
+            <Button 
+              className="menu-button hover-underline"
+              onClick={() => scrollToSection('about')}
+            >
+              About
+            </Button>
+
+            <Button 
+              className="menu-button hover-underline"
+              onClick={() => scrollToSection('special')}
+            >
+              Special
+            </Button>
+
+            <Button 
+              className="menu-button hover-underline"
+              onClick={() => scrollToSection('blog')}
+            >
+              Blog
+            </Button>
+
+            <Button 
+              className="menu-button hover-underline"
+              onClick={() => scrollToSection('contact')}
+            >
+              Contact
+            </Button>
+          </Box>
+
+          <Box className="actions-container">
+            {token && hasOccupiedTable && (
+              <Button
+                color="inherit"
+                startIcon={<TableBar />}
+                onClick={() => setShowReturnTableDialog(true)}
+                className="return-table-button hover-lift"
+                sx={{ mr: 2 }}
+              >
+                Trả bàn
+              </Button>
+            )}
+            <IconButton 
+              color="inherit"
+              onClick={() => navigate('/cart')}
+              className="cart-button hover-lift"
+            >
+              <Badge badgeContent={state.items.length} color="secondary">
+                <ShoppingCart />
               </Badge>
             </IconButton>
-            
-            <IconButton
-              sx={{ 
-                color: 'white', 
-                ml: 2, 
-                cursor: isLoggedIn ? 'pointer' : 'default' 
-              }}
-              onClick={handleMenuOpen}
-            >
-              <Person />
-            </IconButton>
 
-            {!isLoggedIn && (
-              <LoginButton
+            {token ? (
+              <>
+                <IconButton
+                  onClick={handleMenuOpen}
+                  color="inherit"
+                  className="profile-button hover-lift"
+                >
+                  <Person />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                  className="dropdown-menu"
+                >
+                  <MenuItem onClick={handleProfile} className="menu-item hover-lift">
+                    <ListItemIcon>
+                      <AccountCircle fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Thông tin cá nhân" />
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleLogout} className="menu-item hover-lift">
+                    <ListItemIcon>
+                      <Logout fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Đăng xuất" />
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Button
+                color="inherit"
                 onClick={() => navigate('/login')}
-                sx={{ ml: 2 }}
+                className="login-button"
               >
-                Login
-              </LoginButton>
+                Đăng nhập
+              </Button>
             )}
-
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              PaperProps={{
-                sx: {
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                  minWidth: 200,
-                  mt: 1
-                }
-              }}
-            >
-              <MenuItem onClick={handleProfile}>
-                <ListItemIcon>
-                  <AccountCircle fontSize="small" />
-                </ListItemIcon>
-                <ListItemText primary="Thông tin cá nhân" />
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon>
-                  <Logout fontSize="small" />
-                </ListItemIcon>
-                <ListItemText primary="Đăng xuất" />
-              </MenuItem>
-            </Menu>
           </Box>
         </Toolbar>
-      </Container>
-    </StyledAppBar>
+      </AppBar>
+
+      <ReturnTableDialog
+        open={showReturnTableDialog}
+        onClose={() => setShowReturnTableDialog(false)}
+      />
+    </>
   )
 }
 

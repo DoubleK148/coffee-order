@@ -167,11 +167,7 @@ export const updateProduct = async (id: string, data: FormData): Promise<Product
       console.log(`FormData field - ${key}:`, value instanceof File ? `File: ${value.name}` : value);
     }
 
-    const response = await api.put<ProductResponse>(`/api/admin/products/${id}`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    const response = await api.put<ProductResponse>(`/api/admin/products/${id}`, data);
     
     console.log('Update product response:', response.data);
     

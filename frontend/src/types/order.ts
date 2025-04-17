@@ -6,9 +6,21 @@ export interface OrderItem {
   note?: string;
 }
 
+export interface OrderUser {
+  _id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+}
+
 export interface Order {
   _id: string;
-  userId: string;
+  userId: {
+    _id: string;
+    email: string;
+    fullName: string;
+  };
   items: OrderItem[];
   totalAmount: number;
   status: 'pending' | 'confirmed' | 'preparing' | 'completed' | 'cancelled';

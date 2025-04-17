@@ -1,7 +1,8 @@
-import { Box, Container, Typography, Grid } from '@mui/material'
+import React from 'react';
+import { Box, Container, Typography, Grid, Paper } from '@mui/material'
 import './Dashboard.css'
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   return (
     <Box className="admin-dashboard">
       <Container>

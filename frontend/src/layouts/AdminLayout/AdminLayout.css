@@ -1,23 +1,124 @@
 .admin-layout {
   display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
 }
 
 .admin-content {
   flex-grow: 1;
+  padding: 40px;
+  margin-left: 240px;
+  transition: all 0.3s ease;
+}
+
+.admin-drawer {
+  width: 360px;
+  flex-shrink: 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-drawer .MuiDrawer-paper {
+  width: 360px;
+  background-color: #fff;
+  border-right: 1px solid rgba(0,0,0,0.1);
+}
+
+.admin-drawer .MuiListItemButton-root {
+  padding: 24px 48px;
+  margin: 8px 0;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.admin-drawer .MuiListItemButton-root:hover {
+  background-color: rgba(88, 47, 14, 0.15);
+  transform: translateX(4px);
+}
+
+.admin-drawer .MuiListItemButton-root.Mui-selected {
+  background-color: rgba(88, 47, 14, 0.2);
+  border-left: 4px solid #582F0E;
+}
+
+.admin-drawer .MuiListItemIcon-root {
+  min-width: 64px;
+  color: #582F0E;
+}
+
+.admin-drawer .MuiListItemText-primary {
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.admin-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   padding: 24px;
 }
 
-.admin-header {
-  background-color: #582F0E !important;
+.admin-card:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.logout-button {
-  margin-left: 16px !important;
-  border-radius: 8px !important;
-  padding: 6px 16px !important;
-  transition: all 0.3s ease !important;
+.admin-table {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
-.logout-button:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+.admin-table .MuiTableHead-root {
+  background-color: #f8f9fa;
+}
+
+.admin-table .MuiTableCell-root {
+  padding: 16px;
+  font-size: 1.1rem;
+}
+
+.admin-form {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 32px;
+}
+
+.admin-form .MuiTextField-root {
+  margin-bottom: 24px;
+}
+
+.admin-form .MuiButton-root {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .admin-drawer {
+    width: 320px;
+  }
+  
+  .admin-drawer .MuiDrawer-paper {
+    width: 320px;
+  }
+  
+  .admin-content {
+    margin-left: 320px;
+    padding: 32px;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-content {
+    margin-left: 0;
+    padding: 24px;
+  }
+  
+  .admin-drawer {
+    width: 100%;
+  }
 } 

@@ -11,6 +11,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  font-size: 16px;
 }
 
 a {
@@ -27,11 +29,41 @@ body {
   padding: 0;
   min-height: 100vh;
   overflow-x: hidden;
+
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 3.5rem !important;
   line-height: 1.1;
+}
+
+h2 {
+  font-size: 3rem !important;
+}
+
+h3 {
+  font-size: 2.5rem !important;
+}
+
+h4 {
+  font-size: 2rem !important;
+}
+
+h5 {
+  font-size: 1.75rem !important;
+}
+
+h6 {
+  font-size: 1.5rem !important;
+}
+
+p, span, div {
+  font-size: 1.2rem;
 }
 
 button {
@@ -74,4 +106,120 @@ a {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Increase button sizes */
+.MuiButton-root {
+  font-size: 1.2rem !important;
+  padding: 12px 30px !important;
+  min-height: 50px !important;
+}
+
+/* Increase input sizes */
+.MuiInputBase-root {
+  font-size: 1.2rem !important;
+}
+
+.MuiInputBase-input {
+  padding: 15px 20px !important;
+}
+
+/* Increase menu items */
+.MuiMenuItem-root {
+  font-size: 1.2rem !important;
+  padding: 12px 20px !important;
+}
+
+/* Increase card content */
+.MuiCardContent-root {
+  padding: 20px !important;
+}
+
+.MuiCardContent-root .MuiTypography-root {
+  font-size: 1.2rem !important;
+}
+
+/* Increase dialog content */
+.MuiDialogTitle-root {
+  font-size: 1.5rem !important;
+  padding: 20px 24px !important;
+}
+
+.MuiDialogContent-root {
+  padding: 20px 24px !important;
+  font-size: 1.2rem !important;
+}
+
+.MuiDialogActions-root {
+  padding: 20px 24px !important;
+}
+
+/* Increase table text */
+.MuiTableCell-root {
+  font-size: 1.2rem !important;
+  padding: 16px 24px !important;
+}
+
+/* Increase form labels */
+.MuiFormLabel-root {
+  font-size: 1.2rem !important;
+}
+
+/* Increase list items */
+.MuiListItem-root {
+  padding: 12px 20px !important;
+}
+
+.MuiListItemText-primary {
+  font-size: 1.2rem !important;
+}
+
+.MuiListItemText-secondary {
+  font-size: 1.1rem !important;
+}
+
+/* Increase icon sizes */
+.MuiSvgIcon-root {
+  font-size: 1.5rem !important;
+}
+
+/* Increase tooltip text */
+.MuiTooltip-tooltip {
+  font-size: 1.1rem !important;
+  padding: 10px 15px !important;
+}
+
+/* Increase snackbar text */
+.MuiSnackbarContent-message {
+  font-size: 1.2rem !important;
+  padding: 12px 24px !important;
+}
+
+/* Increase pagination */
+.MuiPaginationItem-root {
+  font-size: 1.2rem !important;
+  min-width: 40px !important;
+  height: 40px !important;
+}
+
+/* Increase select items */
+.MuiSelect-select {
+  font-size: 1.2rem !important;
+  padding: 15px 20px !important;
+}
+
+/* Increase checkbox and radio */
+.MuiCheckbox-root {
+  padding: 12px !important;
+}
+
+.MuiRadio-root {
+  padding: 12px !important;
+}
+
+/* Increase tabs */
+.MuiTab-root {
+  font-size: 1.2rem !important;
+  padding: 12px 24px !important;
+  min-height: 50px !important;
 }

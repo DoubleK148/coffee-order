@@ -2,88 +2,93 @@ import { Response } from 'express';
 import Order from '../models/Order';
 import { RequestWithUser } from '../middleware/auth';
 import Product from '../models/Product';
+import { validateOrder } from '../utils/validation';
 //import { sendOrderConfirmationEmail } from '../utils/email';
 
 interface OrderItem {
   productId: string;
+  name: string;
   quantity: number;
+  price: number;
+  note?: string;
 }
 
+// Tạo đơn hàng mới
 export const createOrder = async (req: RequestWithUser, res: Response) => {
   try {
-    const { items, totalAmount, paymentMethod, note } = req.body;
-
-    // Validate user
+    console.log('Creating order with data:', JSON.stringify(req.body, null, 2));
+    
     if (!req.user?.userId) {
       return res.status(401).json({
         success: false,
-        message: 'Vui lòng đăng nhập để đặt hàng'
+        message: 'Unauthorized'
       });
     }
 
-    // Validate items
-    if (!items?.length) {
-      return res.status(400).json({
-        success: false,
-        message: 'Đơn hàng phải có ít nhất một sản phẩm'
-      });
-    }
-
-    // Validate payment method
-    if (!['cash', 'momo', 'card'].includes(paymentMethod)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Phương thức thanh toán không hợp lệ'
-      });
-    }
-
-    // Kiểm tra tồn tại và tình trạng của sản phẩm
-    const productIds = items.map((item: OrderItem) => item.productId);
-    const products = await Product.find({
-      _id: { $in: productIds },
-      status: 'available'
+    // Fetch product details for each item
+    const orderItemsPromises = req.body.items.map(async (item: any) => {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        throw new Error(`Product not found with id: ${item.productId}`);
+      }
+      return {
+        productId: item.productId,
+        name: product.name,
+        quantity: item.quantity,
+        price: item.price,
+        note: item.note || ''
+      };
     });
 
-    if (products.length !== productIds.length) {
-      return res.status(400).json({
-        success: false,
-        message: 'Một số sản phẩm không còn khả dụng'
-      });
-    }
+    const orderItems = await Promise.all(orderItemsPromises);
+    console.log('Mapped order items with names:', JSON.stringify(orderItems, null, 2));
 
-    const order = new Order({
+    // Create order document
+    const orderData = {
       userId: req.user.userId,
-      items,
-      totalAmount,
-      paymentMethod,
-      note,
+      items: orderItems,
+      totalAmount: req.body.totalAmount,
+      paymentMethod: req.body.paymentMethod,
       status: 'pending',
-      paymentStatus: 'pending'
-    });
+      paymentStatus: 'pending',
+      note: req.body.note || ''
+    };
 
-    await order.save();
+    console.log('Creating order document:', JSON.stringify(orderData, null, 2));
 
-    // Gửi email xác nhận đơn hàng
-   // await sendOrderConfirmationEmail(req.user.email, order);
+    const order = new Order(orderData);
+
+    // Save to database
+    console.log('Attempting to save order to database...');
+    const savedOrder = await order.save();
+    console.log('Order saved successfully:', JSON.stringify(savedOrder, null, 2));
 
     res.status(201).json({
       success: true,
       message: 'Đặt hàng thành công',
-      data: order
+      order: savedOrder
     });
   } catch (error) {
     console.error('Create order error:', error);
     res.status(500).json({
       success: false,
-      message: 'Không thể tạo đơn hàng'
+      message: error instanceof Error ? error.message : 'Không thể tạo đơn hàng',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };
 
+// Lấy danh sách đơn hàng của user
 export const getUserOrders = async (req: RequestWithUser, res: Response) => {
   try {
-    const orders = await Order.find({ userId: req.user?.userId })
-      .populate('items.productId')
+    if (!req.user?.userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Vui lòng đăng nhập'
+      });
+    }
+
+    const orders = await Order.find({ userId: req.user.userId })
       .sort({ createdAt: -1 });
 
     res.json({
@@ -99,17 +104,24 @@ export const getUserOrders = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+// Lấy chi tiết đơn hàng
 export const getOrderById = async (req: RequestWithUser, res: Response) => {
   try {
-    const order = await Order.findOne({
-      _id: req.params.id,
-      userId: req.user?.userId
-    }).populate('items.productId');
+    const { id } = req.params;
 
+    const order = await Order.findById(id);
     if (!order) {
       return res.status(404).json({
         success: false,
         message: 'Không tìm thấy đơn hàng'
+      });
+    }
+
+    // Kiểm tra quyền truy cập
+    if (order.userId.toString() !== req.user?.userId && req.user?.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Bạn không có quyền xem đơn hàng này'
       });
     }
 
@@ -118,7 +130,7 @@ export const getOrderById = async (req: RequestWithUser, res: Response) => {
       order
     });
   } catch (error) {
-    console.error('Get order error:', error);
+    console.error('Get order by id error:', error);
     res.status(500).json({
       success: false,
       message: 'Không thể lấy thông tin đơn hàng'
@@ -126,19 +138,47 @@ export const getOrderById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-export const updateOrderStatus = async (req: RequestWithUser, res: Response) => {
+// Admin: Lấy tất cả đơn hàng
+export const getAllOrders = async (req: RequestWithUser, res: Response) => {
   try {
-    const { status } = req.body;
-    const validStatuses = ['pending', 'confirmed', 'preparing', 'completed', 'cancelled'];
-
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({
         success: false,
-        message: 'Trạng thái đơn hàng không hợp lệ'
+        message: 'Bạn không có quyền truy cập'
       });
     }
 
-    const order = await Order.findById(req.params.id);
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .populate('userId', 'fullName email');
+
+    res.json({
+      success: true,
+      orders
+    });
+  } catch (error) {
+    console.error('Get all orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Không thể lấy danh sách đơn hàng'
+    });
+  }
+};
+
+// Admin: Cập nhật trạng thái đơn hàng
+export const updateOrderStatus = async (req: RequestWithUser, res: Response) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Bạn không có quyền thực hiện thao tác này'
+      });
+    }
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const order = await Order.findById(id);
     if (!order) {
       return res.status(404).json({
         success: false,

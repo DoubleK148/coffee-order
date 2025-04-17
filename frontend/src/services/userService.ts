@@ -51,7 +51,7 @@ export const getProfile = async (): Promise<User> => {
 
 export const updateProfile = async (data: UpdateProfileData): Promise<User> => {
   try {
-    const response = await api.put<UserResponse>('/api/users/profile/update', data);
+    const response = await api.put<UserResponse>('/api/users/profile', data);
     console.log('Update profile response:', response.data);
     if (!response.data.success) {
       throw new Error(response.data.message || 'Không thể cập nhật thông tin');

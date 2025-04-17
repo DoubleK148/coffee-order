@@ -13,21 +13,34 @@ const api = axios.create({
 // Add request interceptor
 api.interceptors.request.use(
   (config) => {
+    // Get token from localStorage
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      // Log token for debugging
+      console.log('Using token:', token.substring(0, 10) + '...');
+    } else {
+      console.warn('No token found in storage');
     }
     
     // For FormData requests, let the browser set the Content-Type
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
+      delete config.headers['Accept'];
+      config.headers['Accept'] = 'application/json';
     }
     
+    // Log the complete request for debugging
     console.log('🚀 Request:', {
       url: `${config.baseURL}${config.url}`,
       method: config.method,
-      headers: config.headers,
-      data: config.data instanceof FormData ? '[FormData]' : config.data
+      headers: {
+        ...config.headers,
+        Authorization: config.headers.Authorization ? 'Bearer ...' : 'None'
+      },
+      data: config.data instanceof FormData 
+        ? Object.fromEntries(config.data.entries())
+        : config.data
     });
     return config;
   },
@@ -41,7 +54,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     console.log('✅ Response:', {
-      url: `${response.config.baseURL}${response.config.url}`, // Log full URL
+      url: `${response.config.baseURL}${response.config.url}`,
       method: response.config.method,
       status: response.status,
       data: response.data
@@ -49,12 +62,17 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
+    // Log detailed error information
     console.error('❌ Response error:', {
-      url: `${error.config?.baseURL}${error.config?.url}`, // Log full URL
+      url: `${error.config?.baseURL}${error.config?.url}`,
       method: error.config?.method,
       status: error.response?.status,
       data: error.response?.data,
-      message: error.message
+      message: error.message,
+      headers: error.config?.headers ? {
+        ...error.config.headers,
+        Authorization: error.config.headers.Authorization ? 'Bearer ...' : 'None'
+      } : 'No headers'
     });
 
     const originalRequest = error.config;
@@ -66,35 +84,33 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
-          throw new Error('No refresh token available');
+          console.error('No refresh token found, redirecting to login');
+          window.location.href = '/login';
+          return Promise.reject(new Error('No refresh token available'));
         }
 
         console.log('🔄 Refreshing token...');
         
         // Call refresh token endpoint
-        const response = await api.post('/auth/refresh-token', {
+        const response = await api.post('/api/auth/refresh-token', {
           refreshToken
         });
 
-        if (!response.data.success) {
-          throw new Error(response.data.message || 'Token refresh failed');
+        if (!response.data?.success) {
+          throw new Error(response.data?.message || 'Token refresh failed');
         }
 
         const { accessToken } = response.data.data;
         localStorage.setItem('token', accessToken);
-
         console.log('✅ Token refreshed successfully');
 
-        // Retry the original request with new token
+        // Update Authorization header
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        console.error('❌ Refresh token error:', {
-          message: refreshError instanceof Error ? refreshError.message : String(refreshError),
-          response: refreshError instanceof Error ? (refreshError as any).response?.data : undefined
-        });
-        // If refresh token fails, clear storage and redirect to login
+        console.error('❌ Refresh token error:', refreshError);
         localStorage.clear();
+        sessionStorage.clear();
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

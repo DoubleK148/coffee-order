@@ -1,24 +1,42 @@
 import { Request, Response, NextFunction } from 'express'
 import { z, AnyZodObject, ZodError } from 'zod'
+import { ObjectSchema } from 'joi'
 
-export const validate = (schema: AnyZodObject) => async (
+export const validateZod = (schema: AnyZodObject) => async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    await schema.parseAsync({
+    console.log('Validating request data:', {
       body: req.body,
       query: req.query,
-      params: req.params,
-    })
+      params: req.params
+    });
+
+    // Validate based on the presence of specific fields in the schema
+    const toValidate: any = {};
+    if (schema.shape.body) toValidate.body = req.body;
+    if (schema.shape.query) toValidate.query = req.query;
+    if (schema.shape.params) toValidate.params = req.params;
+
+    // If no specific fields are defined, validate the body directly
+    const validationTarget = Object.keys(toValidate).length > 0 ? toValidate : req.body;
+    
+    await schema.parseAsync(validationTarget);
+
+    console.log('Validation passed');
     return next()
   } catch (error) {
+    console.error('Validation error:', error);
     if (error instanceof ZodError) {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: error.errors,
+        errors: error.errors.map(err => ({
+          path: err.path.join('.'),
+          message: err.message
+        }))
       })
     }
     return res.status(500).json({
@@ -27,6 +45,37 @@ export const validate = (schema: AnyZodObject) => async (
     })
   }
 }
+
+export const validate = (schema: ObjectSchema) => (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let validationTarget = req.body;
+  if (req.params && Object.keys(req.params).length > 0) {
+    validationTarget = req.params;
+  }
+
+  const { error } = schema.validate(validationTarget, { 
+    abortEarly: false,
+    allowUnknown: true,
+    stripUnknown: false
+  });
+  
+  if (error) {
+    console.error('Validation error:', error.details);
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: error.details.map(detail => ({
+        path: detail.path.join('.'),
+        message: detail.message
+      }))
+    });
+  }
+
+  next();
+};
 
 export const loginSchema = z.object({
   body: z.object({

@@ -1,36 +1,31 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 
-interface CustomError extends Error {
-  code?: string;
+interface ApiError extends Error {
+  statusCode?: number;
 }
 
 export const errorHandler = (
-  err: CustomError,
+  err: ApiError,
   req: Request,
   res: Response,
+  next: NextFunction
 ) => {
-  console.error('Error:', err)
+  console.error('Error:', {
+    message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      message: 'Dữ liệu không hợp lệ', 
-      errors: err.message
-    })
+  // If headers have already been sent, delegate to default error handler
+  if (res.headersSent) {
+    return next(err);
   }
 
-  if (err.name === 'UnauthorizedError') {
-    return res.status(401).json({
-      message: 'Không có quyền truy cập'
-    })
-  }
+  const statusCode = err.statusCode || 500;
+  const message = err.message || 'Internal Server Error';
 
-  if (err.code === 'ENOENT') {
-    return res.status(404).json({
-      message: 'File không tồn tại'
-    });
-  }
-
-  res.status(500).json({
-    message: 'Lỗi server'
-  })
+  res.status(statusCode).json({
+    success: false,
+    message,
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 }

@@ -79,15 +79,13 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await getProfile()
-      if (response.success && response.data?.user) {
-        setFormData({
-          fullName: response.data.user.fullName || '',
-          email: response.data.user.email || '',
-          phone: response.data.user.phone || '',
-          address: response.data.user.address || ''
-        })
-      }
+      const user = await getProfile()
+      setFormData({
+        fullName: user.fullName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Không thể tải thông tin người dùng')
     } finally {
@@ -99,13 +97,15 @@ const Profile = () => {
     setError(null)
 
     try {
-      const response = await updateProfile(formData)
-      if (response.success) {
-        setIsEditing(false)
-        await fetchProfile()
-      } else {
-        setError(response.message || 'Cập nhật thông tin thất bại')
-      }
+      const user = await updateProfile(formData)
+      setIsEditing(false)
+      setFormData({
+        fullName: user.fullName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      })
+      setMessage('Cập nhật thông tin thành công')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Cập nhật thông tin thất bại')
     }
@@ -119,18 +119,16 @@ const Profile = () => {
     try {
       setError('')
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
-      if (currentUser.id) {
-        const response = await getUserById(currentUser._id)
-        if (response.success && response.data?.user) {
-          setFormData({
-            fullName: response.data.user.fullName || '',
-            phone: response.data.user.phone || '',
-            address: response.data.user.address || '',
-            email: response.data.user.email || ''
-          })
-          localStorage.setItem('user', JSON.stringify(response.data.user))
-          setMessage('Đã cập nhật thông tin mới nhất')
-        }
+      if (currentUser._id) {
+        const user = await getUserById(currentUser._id)
+        setFormData({
+          fullName: user.fullName || '',
+          phone: user.phone || '',
+          address: user.address || '',
+          email: user.email || ''
+        })
+        localStorage.setItem('user', JSON.stringify(user))
+        setMessage('Đã cập nhật thông tin mới nhất')
       }
     } catch (error) {
       console.error('Error refreshing user data:', error)

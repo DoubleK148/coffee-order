@@ -12,6 +12,10 @@ const orderSchema = new mongoose.Schema({
       ref: 'Product',
       required: true
     },
+    name: {
+      type: String,
+      required: true
+    },
     quantity: {
       type: Number,
       required: true,
@@ -29,17 +33,17 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'processing', 'paid', 'completed', 'cancelled', 'payment_failed'],
+    enum: ['pending', 'confirmed', 'preparing', 'completed', 'cancelled'],
     default: 'pending'
   },
   paymentMethod: {
     type: String,
-    enum: ['cash', 'momo'],
+    enum: ['cash', 'momo', 'card'],
     required: true
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'completed', 'failed'],
+    enum: ['pending', 'paid', 'failed'],
     default: 'pending'
   },
   transactionId: String,

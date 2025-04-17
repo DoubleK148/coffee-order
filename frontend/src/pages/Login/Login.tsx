@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { login } from '../../services/authService'
+import { login as loginService } from '../../services/authService'
+import { useAuth } from '@/contexts/AuthContext'
 import './Login.css'
 
 const Login = () => {
@@ -10,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -21,11 +23,14 @@ const Login = () => {
         throw new Error('Vui lòng nhập đầy đủ email và mật khẩu')
       }
 
-      const response = await login({ email, password })
+      const response = await loginService({ email, password })
       console.log('Login successful:', response)
 
       // Kiểm tra response trước khi chuyển hướng
       if (response.user && response.user.role) {
+        // Cập nhật context
+        login(response.user)
+        
         if (response.user.role === 'admin') {
           navigate('/admin/dashboard')
         } else {

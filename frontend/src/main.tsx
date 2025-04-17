@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { StyledEngineProvider } from '@mui/material/styles'
+import './styles/global.css'
 import './index.css'
 import App from './App.tsx'
 

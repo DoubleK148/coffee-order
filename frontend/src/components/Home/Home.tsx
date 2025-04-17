@@ -2,7 +2,7 @@ import { Box, Button, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import Carousel from 'react-material-ui-carousel'
 import About from '../About/About'
-import Offers from '../Offers/Offers'
+import Special from '../Special/Special'
 import Blog from '../Blog/Blog'
 import Contact from '../Contact/Contact'
 import imghome1 from '../../assets/imghome1.jpg'
@@ -85,7 +85,7 @@ const Home = () => {
       </Box>
       
       <About />
-      <Offers />
+      <Special />
       <Blog />
       <Contact />
     </>

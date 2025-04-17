@@ -100,21 +100,21 @@ const EditProduct = () => {
       formDataToSend.append('category', formData.category);
       formDataToSend.append('price', formData.price.toString());
       formDataToSend.append('status', formData.status);
-      formDataToSend.append('isBestSeller', formData.isBestSeller.toString());
+      formDataToSend.append('isBestSeller', formData.isBestSeller ? 'true' : 'false');
       
       // Optional fields
-      if (formData.discountPrice) {
+      if (formData.discountPrice !== undefined) {
         formDataToSend.append('discountPrice', formData.discountPrice.toString());
       }
-      if (formData.preparationTime) {
+      if (formData.preparationTime !== undefined) {
         formDataToSend.append('preparationTime', formData.preparationTime.toString());
       }
-      if (formData.calories) {
+      if (formData.calories !== undefined) {
         formDataToSend.append('calories', formData.calories.toString());
       }
       
       // Handle ingredients array
-      if (Array.isArray(formData.ingredients)) {
+      if (Array.isArray(formData.ingredients) && formData.ingredients.length > 0) {
         formDataToSend.append('ingredients', JSON.stringify(formData.ingredients));
       }
 
@@ -122,12 +122,12 @@ const EditProduct = () => {
       if (formData.image) {
         formDataToSend.append('image', formData.image);
       } else if (currentImage) {
-        formDataToSend.append('currentImage', currentImage);
+        formDataToSend.append('keepCurrentImage', 'true');
       }
 
       console.log('Submitting form data:', {
         ...Object.fromEntries(formDataToSend.entries()),
-        image: formData.image ? 'File present' : 'No new file'
+        image: formData.image ? 'File present' : 'Using current image'
       });
 
       const updatedProduct = await updateProduct(id!, formDataToSend);

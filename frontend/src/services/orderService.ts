@@ -3,6 +3,17 @@ import { config } from '../config';
 import { handleApiError } from './errorHandler';
 import { Order } from '../types/order';
 
+export interface CreateOrderData {
+  items: Array<{
+    productId: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  totalAmount: number;
+  paymentMethod: string;
+}
+
 interface OrderResponse {
   success: boolean;
   order: Order;
@@ -19,6 +30,10 @@ interface OrdersResponse {
 export const getOrders = async (): Promise<Order[]> => {
   try {
     const response = await api.get<OrdersResponse>(config.endpoints.orders.list);
+    console.log('Full Orders API Response:', JSON.stringify(response.data, null, 2));
+    if (response.data.orders.length > 0) {
+      console.log('First order user info:', response.data.orders[0].userId);
+    }
     if (!response.data.success) {
       throw new Error('Không thể tải danh sách đơn hàng');
     }
@@ -41,14 +56,16 @@ export const getAdminOrderById = async (id: string): Promise<Order> => {
 };
 
 // User order routes
-export const createOrder = async (data: Partial<Order>): Promise<Order> => {
+export const createOrder = async (data: CreateOrderData): Promise<Order> => {
   try {
+    console.log('Creating order with data:', JSON.stringify(data, null, 2));
     const response = await api.post<OrderResponse>(config.endpoints.orders.create, data);
     if (!response.data.success) {
       throw new Error('Không thể tạo đơn hàng');
     }
     return response.data.order;
   } catch (error) {
+    console.error('Error creating order:', error);
     throw handleApiError(error, 'Không thể tạo đơn hàng');
   }
 };

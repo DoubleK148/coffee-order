@@ -1,61 +1,68 @@
-interface Table {
-  id: string;
-  name: string;
-  capacity: number;
-  status: 'available' | 'occupied' | 'reserved';
-  location: 'indoor' | 'outdoor';
-}
+import { Types } from 'mongoose';
+import { Table as TableType, CustomerInfo, TableOrder } from '../types/table';
 
 // Danh sách bàn mặc định
-export const defaultTables: Table[] = [
+export const defaultTables: TableType[] = [
   {
-    id: 'T001',
-    name: 'Bàn 1',
+    _id: new Types.ObjectId(),
+    number: 1,
     capacity: 2,
     status: 'available',
-    location: 'indoor'
+    location: 'indoor',
+    currentOrder: null,
+    orderHistory: []
   },
   {
-    id: 'T002',
-    name: 'Bàn 2',
+    _id: new Types.ObjectId(),
+    number: 2,
     capacity: 4,
     status: 'available',
-    location: 'indoor'
+    location: 'indoor',
+    currentOrder: null,
+    orderHistory: []
   },
   {
-    id: 'T003',
-    name: 'Bàn 3',
+    _id: new Types.ObjectId(),
+    number: 3,
     capacity: 6,
     status: 'available',
-    location: 'indoor'
+    location: 'indoor',
+    currentOrder: null,
+    orderHistory: []
   },
   {
-    id: 'T004',
-    name: 'Bàn 4',
+    _id: new Types.ObjectId(),
+    number: 4,
     capacity: 4,
     status: 'available',
-    location: 'outdoor'
+    location: 'outdoor',
+    currentOrder: null,
+    orderHistory: []
   },
   {
-    id: 'T005',
-    name: 'Bàn 5',
+    _id: new Types.ObjectId(),
+    number: 5,
     capacity: 8,
     status: 'available',
-    location: 'indoor'
+    location: 'indoor',
+    currentOrder: null,
+    orderHistory: []
   },
   {
-    id: 'T006',
-    name: 'Bàn 6',
+    _id: new Types.ObjectId(),
+    number: 6,
     capacity: 2,
     status: 'available',
-    location: 'outdoor'
+    location: 'outdoor',
+    currentOrder: null,
+    orderHistory: []
   }
-]
+];
 
 // Singleton để quản lý trạng thái bàn trong memory
 class TableManager {
   private static instance: TableManager;
-  private tables: Table[];
+  private tables: TableType[];
 
   private constructor() {
     this.tables = [...defaultTables];
@@ -68,39 +75,69 @@ class TableManager {
     return TableManager.instance;
   }
 
-  public getTables(): Table[] {
+  public getTables(): TableType[] {
     return this.tables;
   }
 
-  public getTableById(id: string): Table | undefined {
-    return this.tables.find(table => table.id === id);
+  public getTableById(id: string): TableType | undefined {
+    return this.tables.find(table => table._id.toString() === id);
   }
 
-  public updateTableStatus(id: string, status: Table['status']): Table | undefined {
-    const tableIndex = this.tables.findIndex(table => table.id === id);
+  public getTableByNumber(number: number): TableType | undefined {
+    return this.tables.find(table => table.number === number);
+  }
+
+  public updateTableStatus(
+    tableNumber: number, 
+    status: TableType['status'], 
+    customerInfo?: CustomerInfo
+  ): TableType | undefined {
+    const tableIndex = this.tables.findIndex(table => table.number === tableNumber);
     if (tableIndex === -1) return undefined;
 
     this.tables[tableIndex] = {
       ...this.tables[tableIndex],
-      status
+      status,
+      customerInfo: status === 'available' ? undefined : customerInfo
     };
 
     return this.tables[tableIndex];
+  }
+
+  public updateTableOrder(
+    tableNumber: number,
+    order: TableOrder
+  ): TableType | undefined {
+    const tableIndex = this.tables.findIndex(table => table.number === tableNumber);
+    if (tableIndex === -1) return undefined;
+
+    const table = this.tables[tableIndex];
+    if (table.status !== 'occupied') return undefined;
+
+    // Move current order to history if exists
+    if (table.currentOrder) {
+      table.orderHistory = [...table.orderHistory, table.currentOrder];
+    }
+
+    // Set new order as current
+    table.currentOrder = order;
+
+    return table;
   }
 
   public resetTables(): void {
     this.tables = [...defaultTables];
   }
 
-  public getAvailableTables(): Table[] {
+  public getAvailableTables(): TableType[] {
     return this.tables.filter(table => table.status === 'available');
   }
 
-  public getTablesByLocation(location: Table['location']): Table[] {
+  public getTablesByLocation(location: TableType['location']): TableType[] {
     return this.tables.filter(table => table.location === location);
   }
 
-  public getTablesByCapacity(minCapacity: number): Table[] {
+  public getTablesByCapacity(minCapacity: number): TableType[] {
     return this.tables.filter(table => table.capacity >= minCapacity);
   }
 }

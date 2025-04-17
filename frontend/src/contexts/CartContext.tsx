@@ -4,16 +4,40 @@ import { CartItem, CartState, CartContextType } from '../types/cart';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Validate cart item
+const validateCartItem = (item: CartItem): boolean => {
+  return !!(item.productId && item.name && typeof item.quantity === 'number' && typeof item.price === 'number');
+};
+
+// Ensure all required fields are present
+const sanitizeCartItem = (item: CartItem): CartItem => {
+  return {
+    productId: item.productId,
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
+    image: item.image,
+    note: item.note || ''
+  };
+};
+
 const cartReducer = (state: CartState, action: any) => {
   switch (action.type) {
     case 'ADD_TO_CART': {
+      // Validate new item
+      if (!validateCartItem(action.item)) {
+        console.error('Invalid cart item:', action.item);
+        return state;
+      }
+
+      const sanitizedItem = sanitizeCartItem(action.item);
       const existingItemIndex = state.items.findIndex(
-        item => item.productId === action.item.productId
+        item => item.productId === sanitizedItem.productId
       );
 
+      let newState: CartState;
       if (existingItemIndex > -1) {
-        // Nếu sản phẩm đã tồn tại, tăng số lượng
+        // Update existing item
         const updatedItems = state.items.map((item, index) => {
           if (index === existingItemIndex) {
             return { ...item, quantity: item.quantity + 1 };
@@ -21,21 +45,37 @@ const cartReducer = (state: CartState, action: any) => {
           return item;
         });
 
-        const newState = {
+        newState = {
           items: updatedItems,
           total: updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
         };
-        localStorage.setItem('cart', JSON.stringify(newState));
-        return newState;
       } else {
-        // Nếu là sản phẩm mới
-        const newState = {
-          items: [...state.items, { ...action.item, quantity: 1 }],
-          total: state.total + action.item.price
+        // Add new item
+        newState = {
+          items: [...state.items, sanitizedItem],
+          total: state.total + sanitizedItem.price
         };
-        localStorage.setItem('cart', JSON.stringify(newState));
-        return newState;
       }
+
+      // Save to localStorage
+      localStorage.setItem('cart', JSON.stringify(newState));
+      return newState;
+    }
+
+    case 'LOAD_CART': {
+      // Validate and sanitize all items
+      const validItems = action.items
+        .filter(validateCartItem)
+        .map(sanitizeCartItem);
+
+      const newState = {
+        items: validItems,
+        total: validItems.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0)
+      };
+
+      // Update localStorage with sanitized data
+      localStorage.setItem('cart', JSON.stringify(newState));
+      return newState;
     }
 
     case 'REMOVE_FROM_CART': {
@@ -51,7 +91,7 @@ const cartReducer = (state: CartState, action: any) => {
     case 'UPDATE_QUANTITY': {
       const newItems = state.items.map(item => {
         if (item.productId === action.productId) {
-          return { ...item, quantity: action.quantity };
+          return sanitizeCartItem({ ...item, quantity: action.quantity });
         }
         return item;
       });
@@ -81,14 +121,34 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Load cart from localStorage on initial render
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      const parsedCart = JSON.parse(savedCart);
-      dispatch({ type: 'LOAD_CART', ...parsedCart });
+    try {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        if (parsedCart.items && Array.isArray(parsedCart.items)) {
+          // Validate and sanitize items before loading
+          const validItems = parsedCart.items
+            .filter(validateCartItem)
+            .map(sanitizeCartItem);
+
+          dispatch({ 
+            type: 'LOAD_CART', 
+            items: validItems
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cart from storage:', error);
+      localStorage.removeItem('cart');
     }
   }, []);
 
   const addToCart = (item: CartItem) => {
+    if (!validateCartItem(item)) {
+      console.error('Invalid item:', item);
+      toast.error('Không thể thêm sản phẩm vào giỏ hàng');
+      return;
+    }
     dispatch({ type: 'ADD_TO_CART', item });
     toast.success('Đã thêm vào giỏ hàng!');
   };

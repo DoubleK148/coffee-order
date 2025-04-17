@@ -21,6 +21,8 @@ import './Menu.css'
 import { getProducts } from '../../services/productService'
 import { useNavigate } from 'react-router-dom'
 import { MenuItem } from './MenuItem'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 interface MenuItem {
   _id: string
@@ -119,8 +121,8 @@ const Menu = () => {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {/* Navigation buttons */}
-      <Box sx={{
+      {/* Navigation buttons - Ẩn đi */}
+      {/* <Box sx={{
         position: 'fixed',
         top: '20px',
         left: '20px',
@@ -141,7 +143,7 @@ const Menu = () => {
         >
           Trang chủ
         </Button>
-      </Box>
+      </Box> */}
 
       {/* Search Box */}
       <Box sx={{
@@ -181,31 +183,43 @@ const Menu = () => {
         />
       </Box>
 
-      <Box sx={{
+      {/* Cart button - Ẩn đi */}
+      {/* <Box sx={{
         position: 'fixed',
         top: '20px',
         right: '20px',
         zIndex: 1000
       }}>
-        <Button
-          variant="contained"
-          startIcon={<ShoppingCartIcon />}
+        <IconButton
           onClick={() => navigate('/cart')}
-          sx={{ 
-            padding: '10px 20px',
-            bgcolor: '#582F0E',
-            minWidth: '120px',
+          sx={{
+            bgcolor: '#fff',
             '&:hover': {
-              bgcolor: '#936639',
+              bgcolor: '#f0f0f0'
             }
           }}
         >
-          Giỏ hàng
-        </Button>
-      </Box>
+          <Badge badgeContent={cartItemCount} color="primary">
+            <ShoppingCartIcon />
+          </Badge>
+        </IconButton>
+      </Box> */}
 
       <Box className="menu-page" sx={{ bgcolor: '#FDF8F5', pt: 8 }}>
         <Container maxWidth="xl">
+          {/* Toast container với vị trí mới */}
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            style={{ marginTop: '100px' }} // Thêm margin-top để không bị header che
+          />
           <Grid container spacing={3}>
             {/* Sidebar Categories */}
             <Grid item xs={12} md={3}>
@@ -246,6 +260,7 @@ const Menu = () => {
                     </ListItemButton>
                   ))}
                 </List>
+
                 <Box className="special-offers">
                   <Typography variant="h6">
                     Special Offers
@@ -281,6 +296,32 @@ const Menu = () => {
               </Typography>
               
               <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                <Box sx={{ mb: 4 }}>
+                  <TextField
+                    fullWidth
+                    placeholder="Tìm kiếm món..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: '#936639' }} />
+                        </InputAdornment>
+                      ),
+                      sx: {
+                        bgcolor: 'white',
+                        borderRadius: 2,
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#DBC1AC'
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#936639'
+                        }
+                      }
+                    }}
+                  />
+                </Box>
+                
                 <Grid container spacing={3}>
                   {filteredProducts.map((product) => (
                     <Grid item xs={12} sm={6} md={4} key={product._id}>
